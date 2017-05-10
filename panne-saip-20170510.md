@@ -66,7 +66,7 @@ www.alerte-saip.gouv.Fr. 3600   IN      CNAME   2-01-48eb-0003.cdx.cedexis.net.
 ;; WHEN: Wed May 10 17:31:56 CEST 2017
 ;; MSG SIZE  rcvd: 155
 ```
-On découvre que le serveur qu'il tente de joindre est un CNAME d'un host d'un sous-domaine de cedexis.
+On découvre que le serveur qu'il tente de joindre est un CNAME d'un host d'un sous-domaine de cedexis. Et que les serveurs DNS permettant la résolution en question sont aussi des serveurs de Cedexis. Bref, que tous les oeufs sont dans le même panier.
 En tentant la même opération sur l'host hébergeant la liste des alertes:
 ```bash
 loic@XXX:~$ dig SOA 3718fa66e6.optimicdn.com
