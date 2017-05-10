@@ -94,3 +94,29 @@ m.gtld-servers.net.     61897   IN      A       192.55.83.30
 ;; MSG SIZE  rcvd: 581
 ```
 
+```bash
+loic@XXX:~$ dig SOA 3718fa66e6.optimicdn.com
+
+; <<>> DiG 9.9.5-3ubuntu0.10-Ubuntu <<>> SOA 3718fa66e6.optimicdn.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 37948
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;3718fa66e6.optimicdn.com.      IN      SOA
+
+;; ANSWER SECTION:
+3718fa66e6.optimicdn.com. 360   IN      CNAME   2-01-48eb-0002.cdx.cedexis.net.
+
+;; AUTHORITY SECTION:
+2-01-48eb-0002.cdx.cedexis.net. 19 IN   SOA     flipa.cedexis.net. admin.cedexis.com. 1494429502 14400 7200 604800 19
+
+;; Query time: 13 msec
+;; SERVER: 62.210.16.6#53(62.210.16.6)
+;; WHEN: Wed May 10 17:18:25 CEST 2017
+;; MSG SIZE  rcvd: 153
+```
+
