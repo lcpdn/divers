@@ -1,3 +1,4 @@
+J'ai fait un petit bot Twitter qui tweete en cas de déclenchement d'une alerte sur l'application SAIP. Et aujourd'hui, patatra, vala que le bot tweete de manière erratique. La façon (sale) dont je l'avais codé me laisse à penser que les serveurs mettant à disposition les infos sont mal en point. En effet, impossible de les contacter, la fameuse erreur "Name not resolved" frappe. Alors faisons un petit dig sur les serveurs du projet Google Public DNS pour essayer d'avoir une résolution comme le ferait un client standard:
 ```bash
 loic@XXX:~$ dig 3718fa66e6.optimicdn.com @8.8.8.8
 
@@ -38,62 +39,35 @@ loic@XXX:~$ dig www.alerte-saip.gouv.fr @8.8.8.8
 ;; WHEN: Wed May 10 15:47:14 CEST 2017
 ;; MSG SIZE  rcvd: 52
 ```
-```bash
-loic@cozy:~$ dig www.alerte-saip.gouv.fr @194.2.0.6
+En gros: rien et rien. Il est impossible d'avoir une résolution DNS (celle associant le FQDN à l'adresse IP). En essayant d'interroger en remontant la chaîne de serveurs DNS:
 
-; <<>> DiG 9.9.5-3ubuntu0.10-Ubuntu <<>> www.alerte-saip.gouv.fr @194.2.0.6
+```bash
+loic@XXX:~$ dig SOA www.alerte-saip.gouv.Fr
+
+; <<>> DiG 9.9.5-3ubuntu0.10-Ubuntu <<>> SOA www.alerte-saip.gouv.Fr
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 33694
-;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 13, ADDITIONAL: 16
-;; WARNING: recursion requested but not available
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 20394
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
 ;; QUESTION SECTION:
-;www.alerte-saip.gouv.fr.       IN      A
+;www.alerte-saip.gouv.Fr.       IN      SOA
 
 ;; ANSWER SECTION:
-www.alerte-saip.gouv.fr. 3600   IN      CNAME   2-01-48eb-0003.cdx.cedexis.net.
+www.alerte-saip.gouv.Fr. 3600   IN      CNAME   2-01-48eb-0003.cdx.cedexis.net.
 
 ;; AUTHORITY SECTION:
-net.                    61898   IN      NS      a.gtld-servers.net.
-net.                    61898   IN      NS      j.gtld-servers.net.
-net.                    61898   IN      NS      c.gtld-servers.net.
-net.                    61898   IN      NS      h.gtld-servers.net.
-net.                    61898   IN      NS      k.gtld-servers.net.
-net.                    61898   IN      NS      g.gtld-servers.net.
-net.                    61898   IN      NS      b.gtld-servers.net.
-net.                    61898   IN      NS      m.gtld-servers.net.
-net.                    61898   IN      NS      d.gtld-servers.net.
-net.                    61898   IN      NS      i.gtld-servers.net.
-net.                    61898   IN      NS      f.gtld-servers.net.
-net.                    61898   IN      NS      e.gtld-servers.net.
-net.                    61898   IN      NS      l.gtld-servers.net.
+2-01-48eb-0003.cdx.cedexis.net. 19 IN   SOA     flipa.cedexis.net. admin.cedexis.com. 1494430313 14400 7200 604800 19
 
-;; ADDITIONAL SECTION:
-a.gtld-servers.net.     61897   IN      A       192.5.6.30
-a.gtld-servers.net.     61897   IN      AAAA    2001:503:a83e::2:30
-b.gtld-servers.net.     61897   IN      A       192.33.14.30
-b.gtld-servers.net.     61897   IN      AAAA    2001:503:231d::2:30
-c.gtld-servers.net.     61897   IN      A       192.26.92.30
-d.gtld-servers.net.     61897   IN      A       192.31.80.30
-e.gtld-servers.net.     61897   IN      A       192.12.94.30
-f.gtld-servers.net.     61897   IN      A       192.35.51.30
-g.gtld-servers.net.     61897   IN      A       192.42.93.30
-h.gtld-servers.net.     61897   IN      A       192.54.112.30
-i.gtld-servers.net.     61897   IN      A       192.43.172.30
-j.gtld-servers.net.     61897   IN      A       192.48.79.30
-k.gtld-servers.net.     61897   IN      A       192.52.178.30
-l.gtld-servers.net.     61897   IN      A       192.41.162.30
-m.gtld-servers.net.     61897   IN      A       192.55.83.30
-
-;; Query time: 38 msec
-;; SERVER: 194.2.0.6#53(194.2.0.6)
-;; WHEN: Wed May 10 16:10:16 CEST 2017
-;; MSG SIZE  rcvd: 581
+;; Query time: 24 msec
+;; SERVER: 62.210.16.6#53(62.210.16.6)
+;; WHEN: Wed May 10 17:31:56 CEST 2017
+;; MSG SIZE  rcvd: 155
 ```
-
+On découvre que le serveur qu'il tente de joindre est un CNAME d'un host d'un sous-domaine de cedexis.
+En tentant la même opération sur l'host hébergeant la liste des alertes:
 ```bash
 loic@XXX:~$ dig SOA 3718fa66e6.optimicdn.com
 
@@ -119,4 +93,6 @@ loic@XXX:~$ dig SOA 3718fa66e6.optimicdn.com
 ;; WHEN: Wed May 10 17:18:25 CEST 2017
 ;; MSG SIZE  rcvd: 153
 ```
+Même résultat, l'host est un CNAME d'un Host de Cedexis.
 
+Or, Cedexis est victime d'une attaque aujourd'hui. Ses réseaux sont (globalement) injoignable. Et SAIP ne fonctionne donc pas.
